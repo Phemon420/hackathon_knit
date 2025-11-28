@@ -1,1 +1,1 @@
-web: uvicorn main:app --Port 0.0.0.0 $PORT
+web: uvicorn main:app --port 0.0.0.0 $PORT
