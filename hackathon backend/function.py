@@ -71,7 +71,9 @@ def predict_new_project(original_cost, project_count, cumulative_expenditure, mo
     return round(predicted_cost, 2)
 
 import openai
-openai.api_key = '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'
+from dotenv import load_dotenv
+load_dotenv()
+openai.api_key = os.getenv("Open_Ai_Key")
 def sentiment_classification(data):
     response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
