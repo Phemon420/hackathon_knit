@@ -1,11 +1,24 @@
 from imports import *
 from function import *
+from pydantic import BaseModel
+from typing import Optional
 
 @router.get("/lol")
 async def read_root(request: Request):
     return {"message": "Hello, World!"}
 
 from fastapi import Form
+
+class SentimentAnalysisRequest(BaseModel):
+    text: str
+    project_id: Optional[str] = None
+    project_name: Optional[str] = None
+    sector: Optional[str] = None
+    state: Optional[str] = None
+    user_id: Optional[str] = None
+    timestamp: Optional[str] = None
+    priority: Optional[str] = "medium"
+    context: Optional[str] = None
 
 @router.post("/analysis-data")
 async def read_all_items(request: Request, table_name: str = Form(), page: int = Form(1), page_size: int = Form(20)):
@@ -49,5 +62,29 @@ async def predict_cost(request: Request, original_cost: float = Form(), project_
         print("check point 1")
         predicted_cost = predict_new_project(original_cost, project_count, cumulative_expenditure)
         return {"predicted_cost": predicted_cost}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/sentiment-analysis")
+async def sentiment_analysis(request: Request, data: SentimentAnalysisRequest):
+    try:
+        sentiment = sentiment_classification(data)
+
+        # Return sentiment analysis along with provided metadata
+        response = {
+            "sentiment": sentiment,
+            "metadata": {
+                "project_id": data.project_id,
+                "project_name": data.project_name,
+                "sector": data.sector,
+                "state": data.state,
+                "user_id": data.user_id,
+                "timestamp": data.timestamp,
+                "priority": data.priority,
+                "context": data.context
+            }
+        }
+
+        return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
